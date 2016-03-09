@@ -188,7 +188,7 @@
 			ION_HEAP_TYPE_CARVEOUT = 2,
 			ION_HEAP_TYPE_CHUNK = 3,
 			ION_HEAP_TYPE_DMA = 4,
-			ION_HEAP_TYPE_SECURE = 5,
+			ION_HEAP_TYPE_SECURE = 6,
 		**/
 		system_contig{
 			type = <1>;
@@ -203,7 +203,7 @@
 			name = "system";
 		};
 		secure{
-			type = <5>;
+			type = <6>;
 			name = "secure";
 		};
 	};

@@ -38,7 +38,6 @@ extern int gpu_thermal_cool_unregister(void);
 #endif /* CONFIG_SUNXI_GPU_COOLING */
 
 static struct mali_gpu_device_data mali_gpu_data;
-static struct mali_gpu_device_data mali_gpu_data;
 
 #ifndef CONFIG_MALI_DT
 static struct resource mali_gpu_resources[]=

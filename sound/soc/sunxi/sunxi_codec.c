@@ -260,7 +260,26 @@ static void dachpf_enable(struct snd_soc_codec *codec,bool on)
 static void adchpf_enable(struct snd_soc_codec *codec,bool on)
 {
 	if (on) {
+                snd_soc_update_bits(codec, SUNXI_MOD_CLK_ENA, (0x1<<HPF_AGC_MOD_CLK_EN), (0x1<<HPF_AGC_MOD_CLK_EN));
+                snd_soc_update_bits(codec, SUNXI_MOD_RST_CTL, (0x1<<HPF_AGC_MOD_RST_CTL), (0x1<<HPF_AGC_MOD_RST_CTL));
+
+                snd_soc_update_bits(codec, SUNXI_AC_ADC_DAPLCTRL, (0x1<<LEFT_HPF_EN), (0x1<<LEFT_HPF_EN));
+                snd_soc_update_bits(codec, SUNXI_AC_ADC_DAPRCTRL, (0x1<<RIGHT_HPF_EN), (0x1<<RIGHT_HPF_EN));
+
+                snd_soc_write(codec, SUNXI_AC_DAPHHPFC, 0xef);
+                snd_soc_write(codec, SUNXI_AC_DAPLHPFC, 0xfac1);
+
+                snd_soc_update_bits(codec, SUNXI_AGC_ENA, (0x3<<6), (0x3<<6));
+
 	} else {
+                snd_soc_update_bits(codec, SUNXI_MOD_CLK_ENA, (0x1<<HPF_AGC_MOD_CLK_EN), (0x0<<HPF_AGC_MOD_CLK_EN));
+                snd_soc_update_bits(codec, SUNXI_MOD_RST_CTL, (0x1<<HPF_AGC_MOD_RST_CTL), (0x0<<HPF_AGC_MOD_RST_CTL));
+
+                snd_soc_update_bits(codec, SUNXI_AC_ADC_DAPLCTRL, (0x1<<LEFT_HPF_EN), (0x0<<LEFT_HPF_EN));
+                snd_soc_update_bits(codec, SUNXI_AC_ADC_DAPRCTRL, (0x1<<RIGHT_HPF_EN), (0x0<<RIGHT_HPF_EN));
+
+                snd_soc_update_bits(codec, SUNXI_AGC_ENA, (0x3<<6), (0x0<<6));
+
 	}
 }
 

@@ -1294,6 +1294,34 @@ static int tz_tee_remove(struct platform_device *pdev)
 	return 0;
 }
 
+/* configure drm info */
+
+int probe_drm_configure(long unsigned int *drm_base, long unsigned int *drm_size, long unsigned int *tee_base)
+{
+	struct smc_param param = { 0 };
+	int ret = 0;
+
+	param.a0 = TEESMC32_CALL_GET_DRM_INFO;
+	param.a1 = TEESMC_DRM_PHY_INFO;
+	tee_smc_call(&param);
+
+	if (param.a0 != TEESMC_RETURN_OK) {
+		printk("drm config service not available: %X", (uint)param.a0);
+		return -EINVAL;
+	}
+
+	*drm_base = param.a1;
+	*drm_size = param.a2;
+	*tee_base = param.a3;
+
+	printk("drm_base=0x%x\n", (uint32_t)*drm_base);
+	printk("drm_size=0x%x\n", (uint32_t)*drm_size);
+	printk("tee_base=0x%x\n", (uint32_t)*tee_base);
+
+	return ret;
+}
+EXPORT_SYMBOL(probe_drm_configure);
+
 static struct of_device_id tz_tee_match[] = {
 	{
 	 .compatible = "stm,armv7sec",

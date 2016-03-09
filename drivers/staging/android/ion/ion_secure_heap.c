@@ -45,7 +45,8 @@ ion_phys_addr_t ion_secure_allocate(struct ion_heap *heap,
 	unsigned long offset = gen_pool_alloc(secure_heap->pool, size);
 
 	if (!offset) {
-		pr_err("%s(%d) err: alloc 0x%08x bytes failed\n", __func__, __LINE__, (u32)size);
+		pr_err("%s(%d) err: alloc 0x%08x bytes failed\n",
+			__func__, __LINE__, (u32)size);
 		return ION_CARVEOUT_ALLOCATE_FAIL;
 	}
 	return offset;
@@ -66,8 +67,20 @@ static int ion_secure_heap_phys(struct ion_heap *heap,
 				  struct ion_buffer *buffer,
 				  ion_phys_addr_t *addr, size_t *len)
 {
-	*addr = buffer->priv_phys;
-	*len = buffer->size;
+	if ((*len & 0xffff) == 0) {
+		*addr = buffer->priv_phys;
+		*len = buffer->size;
+	} else {
+		unsigned int  drm_phy_addr, drm_tee_addr;
+
+		sunxi_ion_probe_drm_info(&drm_phy_addr, &drm_tee_addr);
+		if (drm_phy_addr)
+			*addr = buffer->priv_phys
+			- drm_phy_addr
+			+ drm_tee_addr;
+		else
+			*addr = 0;
+	}
 	return 0;
 }
 
@@ -120,10 +133,11 @@ int ion_secure_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
 	return remap_pfn_range(vma, vma->vm_start,
 			       __phys_to_pfn(buffer->priv_phys) + vma->vm_pgoff,
 			       vma->vm_end - vma->vm_start,
-			       vma->vm_page_prot); /* when user call ION_IOC_ALLOC not with ION_FLAG_CACHED, ion_mmap will
-						    * change prog to pgprot_writecombine itself, so we donot need change to
-						    * pgprot_writecombine here manually.
-						    */
+			       vma->vm_page_prot);
+	/* when user call ION_IOC_ALLOC not with ION_FLAG_CACHED, ion_mmap will
+	* change prog to pgprot_writecombine itself, so we donot need change to
+	* pgprot_writecombine here manually.
+	*/
 }
 
 static struct ion_heap_ops secure_heap_ops = {
